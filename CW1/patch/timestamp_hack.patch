@@ -1,0 +1,39 @@
+--- ARDroneLib/Soft/Lib/ardrone_tool/Video/video_stage_decoder.c	2016-12-18 17:29:22.634863540 +0000
++++ ARDroneLib/Soft/Lib/ardrone_tool/Video/video_stage_decoder.c.patched	2016-12-18 17:41:46.058862947 +0000
+@@ -164,11 +164,13 @@
+     startTime = mach_absolute_time ();
+ #endif
+ 
+-
++parrot_video_encapsulation_t *PaVE = (parrot_video_encapsulation_t *)buffer;
++uint32_t timestamp = PaVE->timestamp;
+ 
+     // Check for PaVE
+     if (havePaVE (buffer))
+     {
++
+         parrot_video_encapsulation_t *PaVE = (parrot_video_encapsulation_t *)buffer;
+ 
+         video_stage_decoder_lastDetectedCodec = PaVE->video_codec;
+@@ -263,9 +265,12 @@
+         out->numBuffers = outToCopy->numBuffers;
+         out->buffers = outToCopy->buffers;
+         out->indexBuffer = outToCopy->indexBuffer;
++
++        memcpy(outToCopy->buffers[outToCopy->indexBuffer],&timestamp,4);
++
+         out->size = outToCopy->size;
+         out->lineSize = outToCopy->lineSize;
+-        out->status = outToCopy->status;
++        out->status = outToCopy->status; 
+ 
+         retVal = C_OK;
+     }
+@@ -289,6 +294,7 @@
+ #endif
+ 
+ 
++
+     return retVal;
+ }
+ 

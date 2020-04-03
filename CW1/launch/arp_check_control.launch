@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!-- Provided by sleutene for convenience -->
+<launch>
+  <!-- IPv4 address of your drone -->
+  <arg name="ip" default="192.168.1.1" />
+  <!-- Ultrasound frequency (7 or 8). -->
+  <arg name="freq" default="8" />
+  <!-- Fake-launch ardrone_driver. -->
+    <param name="ardrone_driver/outdoor" value="0" />
+    <param name="ardrone_driver/max_bitrate" value="4000" />
+    <param name="ardrone_driver/bitrate" value="4000" />
+    <param name="ardrone_driver/navdata_demo" value="0" />
+    <param name="ardrone_driver/flight_without_shell" value="0" />
+    <param name="ardrone_driver/altitude_max" value="1600" />
+    <param name="ardrone_driver/altitude_min" value="50" />
+    <param name="ardrone_driver/euler_angle_max" value="0.21" />
+    <param name="ardrone_driver/control_vz_max" value="700" />
+    <param name="ardrone_driver/control_yaw" value="1.75" />
+    <param name="ardrone_driver/detect_type" value="10" />
+    <param name="ardrone_driver/enemy_colors" value="3" />
+    <param name="ardrone_driver/detections_select_h" value="32" />
+    <param name="ardrone_driver/detections_select_v_hsync" value="128" />
+    <param name="ardrone_driver/enemy_without_shell" value="0" />
+    <param name="ardrone_driver/ultrasound_freq" value="$(arg freq)" />
+    <param name="ardrone_driver/realtime_navdata" value="true" />
+    <param name="ardrone_driver/realtime_video" value="true" />
+    <!-- Covariance Values (3x3 matrices reshaped to 1x9)-->
+    <rosparam param="ardrone_driver/cov/imu_la">[0.1, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.1]</rosparam>
+    <rosparam param="ardrone_driver/cov/imu_av">[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]</rosparam>
+    <rosparam param="ardrone_driver/cov/imu_or">[1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 100000.0]</rosparam>
+
+  <!-- Launch rosbag play. -->
+  <node pkg="rosbag" type="play" name="play" args="$(find ardrone_practicals)/bags/controllerCheck.bag -s 13 -r 0.2"/>
+  <!-- Launch visualisation. -->
+  <!--<node pkg="rviz" type="rviz" name="rviz" args="-d $(find ardrone_practicals)/config/rviz_vi_ekf.rviz"/>-->
+  <!-- Launch plotter. -->
+  <node pkg="rqt_plot" type="rqt_plot" name="rqt_plot_x" args="/cmd_vel/linear/x /cmd_vel_dummy/linear/x"/>
+  <node pkg="rqt_plot" type="rqt_plot" name="rqt_plot_y" args="/cmd_vel/linear/y /cmd_vel_dummy/linear/y"/>
+  <node pkg="rqt_plot" type="rqt_plot" name="rqt_plot_z" args="/cmd_vel/linear/z /cmd_vel_dummy/linear/z"/>
+  <node pkg="rqt_plot" type="rqt_plot" name="rqt_plot_yaw" args="/cmd_vel/angular/z /cmd_vel_dummy/angular/z"/>
+  <!-- Launch estimator / control arp_node. -->
+  <node name="arp_node" pkg="ardrone_practicals" type="arp_node"
+      output="screen">
+    <!-- Camera parameters TODO: plug in yours... (and other params)-->
+    <param name="fu" value="565.918256" />
+    <param name="fv" value="565.547764" />
+    <param name="cu" value="302.800654" />
+    <param name="cv" value="168.622204" />
+    <param name="k1" value="-0.542657" />
+    <param name="k2" value="0.327620" />
+    <param name="p1" value="-0.002041" />
+    <param name="p2" value="0.001575" />
+  </node>
+
+</launch>
